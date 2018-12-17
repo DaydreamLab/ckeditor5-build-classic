@@ -31,6 +31,7 @@ import Alignment from "@ckeditor/ckeditor5-alignment/src/alignment";
 import Underline from "@ckeditor/ckeditor5-basic-styles/src/underline";
 import Strikethrough from "@ckeditor/ckeditor5-basic-styles/src/strikethrough";
 import Code from "@ckeditor/ckeditor5-basic-styles/src/code";
+import Autosave from "@ckeditor/ckeditor5-autosave/src/autosave";
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -58,7 +59,8 @@ ClassicEditor.builtinPlugins = [
 	Alignment,
 	Underline,
 	Strikethrough,
-	Code
+	Code,
+	Autosave
 ];
 
 // Editor configuration.

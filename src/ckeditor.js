@@ -28,67 +28,96 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 
-// import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-// import imageIcon from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
-// import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import imageIcon from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
+import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
-// class InsertImage extends Plugin {
-// 	init() {
-// 		const editor = this
-// 			.editor;
+import ObservableMixin from '@ckeditor/ckeditor5-utils/src/observablemixin';
+import mix from '@ckeditor/ckeditor5-utils/src/mix';
 
-// 		editor.ui.componentFactory.add(
-// 			'insertImage',
-// 			locale => {
-// 				const view = new ButtonView(
-// 					locale
-// 				);
+class InsertImage extends Plugin {
+	init() {
+		const editor = this
+			.editor;
 
-// 				view.set(
-// 					{
-// 						label:
-// 							'插入圖片',
-// 						icon: imageIcon,
-// 						tooltip: true
-// 					}
-// 				);
+		editor.ui.componentFactory.add(
+			'insertImage',
+			locale => {
+				const view = new ButtonView(
+					locale
+				);
 
-// 				// Callback executed once the image is clicked.
-// 				view.on(
-// 					'execute',
-// 					() => {
-// 						const imageUrl = this
-// 							.$vm0
-// 							.$data
-// 							.mediaPath;
+				view.set(
+					{
+						label:
+							'Insert image',
+						icon: imageIcon,
+						tooltip: true
+					}
+				);
+				// set observables on editor
+				editor.set(
+					{
+						insertImageRequested: false,
+						imageFileRequested: null
+					}
+				);
+				// Callback executed once the image is clicked.
+				view.on(
+					'execute',
+					() => {
+						// set observable to indicate a request to insert image has been made...
+						editor.set(
+							{
+								insertImageRequested: true
+							}
+						);
+					}
+				);
+				// Now this waits for the user to have selected a file URL which should show up
+				// in the imageFileRequested observable
+				editor.on(
+					'change:imageFileRequested',
+					() => {
+						// // Which then injects the image into the body...
+						const imageUrl =
+							editor.imageFileRequested;
+						editor.model.change(
+							writer => {
+								const imageElement = writer.createElement(
+									'image',
+									{
+										src: imageUrl
+									}
+								);
+								// Insert the image in the current selection location.
+								editor.model.insertContent(
+									imageElement,
+									editor
+										.model
+										.document
+										.selection
+								);
+							}
+						);
 
-// 						editor.model.change(
-// 							writer => {
-// 								const imageElement = writer.createElement(
-// 									'image',
-// 									{
-// 										src: imageUrl
-// 									}
-// 								);
+						// and unsets our observables back to their original state
+						editor.set(
+							{
+								insertImageRequested: false,
+								imageFileRequested: null
+							}
+						);
+					}
+				);
 
-// 								// Insert the image in the current selection location.
-// 								editor.model.insertContent(
-// 									imageElement,
-// 									editor
-// 										.model
-// 										.document
-// 										.selection
-// 								);
-// 							}
-// 						);
-// 					}
-// 				);
+				return view;
+			}
+		);
+	}
+}
+mix( InsertImage, ObservableMixin );
 
-// 				return view;
-// 			}
-// 		);
-// 	}
-// }
 export default class ClassicEditor extends ClassicEditorBase {}
 
 // Plugins to include in the build.
@@ -107,6 +136,7 @@ ClassicEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
+	InsertImage,
 	Link,
 	List,
 	MediaEmbed,
@@ -125,13 +155,69 @@ ClassicEditor.defaultConfig = {
 			'bold',
 			'italic',
 			'link',
+			'|',
 			'bulletedList',
 			'numberedList',
 			'blockQuote',
 			'insertTable',
+			'|',
 			'mediaEmbed',
+			'insertImage',
+			'|',
 			'undo',
 			'redo'
+		]
+	},
+	heading: {
+		options: [
+			{
+				model:
+					'paragraph',
+				title:
+					'Paragraph',
+				class:
+					'ck-heading_paragraph'
+			},
+			{
+				model:
+					'heading1',
+				view:
+					'h2',
+				title:
+					'Heading 1',
+				class:
+					'ck-heading_heading1'
+			},
+			{
+				model:
+					'heading2',
+				view:
+					'h3',
+				title:
+					'Heading 2',
+				class:
+					'ck-heading_heading2'
+			},
+			{
+				model:
+					'heading3',
+				view:
+					'h4',
+				title:
+					'Heading 3',
+				class:
+					'ck-heading_heading3'
+			},
+			{
+				model:
+					'heading4',
+				view:
+					'h5',
+				title:
+					'標題 4',
+				class:
+					'ck-heading_heading4'
+			}
 		]
 	},
 	image: {

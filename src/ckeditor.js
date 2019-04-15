@@ -28,6 +28,69 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 
+import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import imageIcon from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
+import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+
+class InsertImage extends Plugin {
+	init() {
+		const editor = this
+			.editor;
+
+		editor.ui.componentFactory.add(
+			'insertImage',
+			locale => {
+				const view = new ButtonView(
+					locale
+				);
+
+				view.set(
+					{
+						label:
+							'插入圖片',
+						icon: imageIcon,
+						tooltip: true
+					}
+				);
+
+				// Callback executed once the image is clicked.
+				view.on(
+					'execute',
+					() => {
+						this.$vm0.$data.mediaDialogVisible = true;
+
+						const imageUrl = this
+							.$vm0
+							.$data
+							.mediaPath;
+
+						editor.model.change(
+							writer => {
+								const imageElement = writer.createElement(
+									'image',
+									{
+										src: imageUrl
+									}
+								);
+
+								// Insert the image in the current selection location.
+								editor.model.insertContent(
+									imageElement,
+									editor
+										.model
+										.document
+										.selection
+								);
+							}
+						);
+					}
+				);
+
+				return view;
+			}
+		);
+	}
+}
 export default class ClassicEditor extends ClassicEditorBase {}
 
 // Plugins to include in the build.
@@ -46,6 +109,7 @@ ClassicEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
+	InsertImage,
 	Link,
 	List,
 	MediaEmbed,
@@ -66,7 +130,7 @@ ClassicEditor.defaultConfig = {
 			'link',
 			'bulletedList',
 			'numberedList',
-			'imageUpload',
+			'insertImage',
 			'blockQuote',
 			'insertTable',
 			'mediaEmbed',
@@ -91,5 +155,5 @@ ClassicEditor.defaultConfig = {
 	},
 	// This value must be kept in sync with the language defined in webpack.config.js.
 	language:
-		'en'
+		'zh'
 };
